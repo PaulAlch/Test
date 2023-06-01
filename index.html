@@ -25,16 +25,23 @@
         document.body.style.textAlign = "left";
       }
 
-      // Create Unity instance
-      var unityInstance = createUnityInstance(document.getElementById("unityContainer"), {
-        dataUrl: "Build/Multiplayer.data",
-        frameworkUrl: "Build/Multiplayer.framework.js",
-        codeUrl: "Build/Multiplayer.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "Vitrine",
-        productVersion: "0.1.0",
-      });
+      var unityInstance;
+
+      // Create Unity instance if it doesn't exist
+      function createUnity() {
+        unityInstance = createUnityInstance(document.getElementById("unityContainer"), {
+          dataUrl: "Build/Multiplayer.data",
+          frameworkUrl: "Build/Multiplayer.framework.js",
+          codeUrl: "Build/Multiplayer.wasm",
+          streamingAssetsUrl: "StreamingAssets",
+          companyName: "DefaultCompany",
+          productName: "Vitrine",
+          productVersion: "0.1.0",
+        });
+
+        // Call startScreenShare when Unity is loaded
+        unityInstance.onRuntimeInitialized = startScreenShare;
+      }
 
       // Get screen share media stream
       async function startScreenShare() {
@@ -46,8 +53,13 @@
         }
       }
 
-      // Call startScreenShare when Unity is loaded
-      unityInstance.onRuntimeInitialized = startScreenShare;
+      // Check if Unity instance exists, if not, create it
+      if (!unityInstance) {
+        createUnity();
+      } else {
+        // Unity instance already exists, call startScreenShare
+        startScreenShare();
+      }
     </script>
   </body>
 </html>
