@@ -21,8 +21,5 @@ async function startScreenShare() {
   }
 }
 
-startScreenShare();
-
-
 // Call the startScreenShare function when needed, e.g., on a button click event
-
+startScreenShare();

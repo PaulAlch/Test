@@ -7,7 +7,7 @@
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
     <div id="unityContainer" style="width: 960px; height: 600px; background: #231F20"></div>
-    <iframe id="screenShareFrame" width="800" height="600" style="position: absolute; top: 0; left: 0; border: 0;"></iframe>
+    <iframe id="screenShareFrame" width="800" height="600" style="position: absolute; top: 600px; left: 0; border: 0;"></iframe>
     <script src="Build/Multiplayer.loader.js"></script>
     <script>
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -41,16 +41,6 @@
 
         // Call startScreenShare when Unity is loaded
         unityInstance.onRuntimeInitialized = startScreenShare;
-      }
-
-      // Get screen share media stream
-      async function startScreenShare() {
-        try {
-          const mediaStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-          document.getElementById('screenShareFrame').srcObject = mediaStream;
-        } catch (error) {
-          console.error('Error accessing screen share:', error);
-        }
       }
 
       // Check if Unity instance exists, if not, create it
