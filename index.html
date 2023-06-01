@@ -6,26 +6,27 @@
     <title>Unity WebGL Player | Vitrine</title>
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-    <canvas id="unity-canvas" width=960 height=600 style="width: 960px; height: 600px; background: #231F20"></canvas>
+    <div id="unityContainer" style="width: 960px; height: 600px; background: #231F20"></div>
     <iframe id="screenShareFrame" width="800" height="600" style="position: absolute; top: 0; left: 0; border: 0;"></iframe>
     <script src="Build/Multiplayer.loader.js"></script>
     <script>
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
+        // Mobile device style: fill the whole browser client area with the game container:
         var meta = document.createElement('meta');
         meta.name = 'viewport';
         meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
         document.getElementsByTagName('head')[0].appendChild(meta);
 
-        var canvas = document.querySelector("#unity-canvas");
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.style.position = "fixed";
+        var container = document.querySelector("#unityContainer");
+        container.style.width = "100%";
+        container.style.height = "100%";
+        container.style.position = "fixed";
 
         document.body.style.textAlign = "left";
       }
 
-      createUnityInstance(document.querySelector("#unity-canvas"), {
+      // Create Unity instance
+      var unityInstance = createUnityInstance(document.getElementById("unityContainer"), {
         dataUrl: "Build/Multiplayer.data",
         frameworkUrl: "Build/Multiplayer.framework.js",
         codeUrl: "Build/Multiplayer.wasm",
@@ -45,8 +46,8 @@
         }
       }
 
-      // Call startScreenShare when the Unity instance is loaded
-      Module['onRuntimeInitialized'] = startScreenShare;
+      // Call startScreenShare when Unity is loaded
+      unityInstance.onRuntimeInitialized = startScreenShare;
     </script>
   </body>
 </html>
