@@ -4,52 +4,96 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Vitrine</title>
+    <style>
+      body, html {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #container {
+        display: flex;
+        height: 100%;
+        width: 100%;
+      }
+      #webglFrame {
+        flex-grow: 1;
+        background: #231F20;
+        height: 100%;
+      }
+      #screenShareContainer {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #FFFFFF;
+        height: 100%;
+      }
+      #screenShareVideo {
+        max-width: 100%;
+        max-height: 100%;
+      }
+    </style>
   </head>
-  <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-    <div id="unityContainer" style="width: 960px; height: 600px; background: #231F20"></div>
-    <iframe id="screenShareFrame" width="800" height="600" style="position: absolute; top: 600px; left: 0; border: 0;"></iframe>
-    <script src="Build/Multiplayer.loader.js"></script>
+  <body>
+    <div id="container">
+      <iframe id="webglFrame" src="webgl.html" frameborder="0"></iframe>
+      <div id="screenShareContainer">
+        <video id="screenShareVideo" autoplay></video>
+      </div>
+    </div>
     <script>
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game container:
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-
-        var container = document.querySelector("#unityContainer");
-        container.style.width = "100%";
-        container.style.height = "100%";
-        container.style.position = "fixed";
-
-        document.body.style.textAlign = "left";
-      }
-
-      var unityInstance;
-
-      // Create Unity instance if it doesn't exist
-      function createUnity() {
-        unityInstance = createUnityInstance(document.getElementById("unityContainer"), {
-          dataUrl: "Build/Multiplayer.data",
-          frameworkUrl: "Build/Multiplayer.framework.js",
-          codeUrl: "Build/Multiplayer.wasm",
-          streamingAssetsUrl: "StreamingAssets",
-          companyName: "DefaultCompany",
-          productName: "Vitrine",
-          productVersion: "0.1.0",
+      var webglFrame = document.getElementById("webglFrame");
+      var screenShareVideo = document.getElementById("screenShareVideo");
+      // Vérifier si le navigateur prend en charge le partage d'écran
+      if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+        // Vérifier si l'utilisateur a donné la permission d'accéder à l'écran
+        navigator.permissions.query({ name: 'screen' }).then(function(permissionStatus) {
+          if (permissionStatus.state === 'granted') {
+            startScreenSharing();
+          } else if (permissionStatus.state === 'prompt') {
+            // L'utilisateur n'a pas encore donné sa permission, afficher une demande de permission
+            permissionStatus.onchange = function() {
+              if (permissionStatus.state === 'granted') {
+                startScreenSharing();
+              } else {
+                console.error('L\'utilisateur a refusé la permission pour le partage d\'écran');
+              }
+            };
+          } else {
+            console.error('L\'utilisateur a refusé la permission pour le partage d\'écran');
+          }
         });
-
-        // Call startScreenShare when Unity is loaded
-        unityInstance.onRuntimeInitialized = startScreenShare;
-      }
-
-      // Check if Unity instance exists, if not, create it
-      if (!unityInstance) {
-        createUnity();
       } else {
-        // Unity instance already exists, call startScreenShare
-        startScreenShare();
+        console.error('Le navigateur ne prend pas en charge le partage d\'écran');
       }
+      function startScreenSharing() {
+        // Obtenir l'accès au partage d'écran
+        navigator.mediaDevices.getDisplayMedia({ video: true })
+          .then(function(stream) {
+            // Assigner le flux vidéo au lecteur vidéo
+            screenShareVideo.srcObject = stream;
+            // Play la vidéo
+            screenShareVideo.play();
+          })
+          .catch(function(error) {
+            console.error('Erreur lors du partage d\'écran :', error);
+          });
+      }
+      // Redimensionner les iframes pour occuper la moitié de la page chacun
+      function resizeIframes() {
+        var container = document.getElementById("container");
+        var containerWidth = container.clientWidth;
+        var containerHeight = container.clientHeight;
+        var webglFrameWidth = containerWidth / 2;
+        var screenShareContainerWidth = containerWidth / 2;
+        webglFrame.style.width = webglFrameWidth + "px";
+        webglFrame.style.height = containerHeight + "px";
+        screenShareContainer.style.width = screenShareContainerWidth + "px";
+        screenShareContainer.style.height = containerHeight + "px";
+      }
+      // Appeler la fonction de redimensionnement au chargement de la page et lors du redimensionnement de la fenêtre
+      window.addEventListener("load", resizeIframes);
+      window.addEventListener("resize", resizeIframes);
     </script>
   </body>
 </html>
