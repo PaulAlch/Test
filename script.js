@@ -1,6 +1,6 @@
 // Create WebGL iframe
 var unityIframe = document.createElement('iframe');
-unityIframe.src = 'path_to_your_unity_project/index.html'; // Replace with the actual path to your Unity project
+unityIframe.src = 'index.html'; 
 unityIframe.width = '800';
 unityIframe.height = '600';
 document.body.appendChild(unityIframe);
@@ -22,6 +22,7 @@ async function startScreenShare() {
 }
 
 startScreenShare();
+
 
 // Call the startScreenShare function when needed, e.g., on a button click event
 
