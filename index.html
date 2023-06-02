@@ -85,19 +85,22 @@ function captureFrame() {
     const context = canvas.getContext('2d');
     const video = document.getElementById('screen-share-video');
 
-    // Vérifier si la vidéo est chargée et prête
+    // Check if the video is loaded and ready
     if (video.readyState === video.HAVE_ENOUGH_DATA) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Compresser l'image en utilisant l'algorithme JPEG avec un facteur de qualité de 0.8
-      const imageData = canvas.toDataURL('image/jpeg', 0.025);
-
-      unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', imageData);
+      // Compress the image using the JPEG algorithm with a quality factor of 0.8
+      canvas.toBlob(function(blob) {
+        const reader = new FileReader();
+        reader.onloadend = function() {
+          unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', reader.result);
+        };
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', 0.025);
     }
   }
-  
 
   requestAnimationFrame(captureFrame);
 }
