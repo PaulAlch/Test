@@ -92,7 +92,7 @@ function captureFrame() {
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       // Compresser l'image en utilisant l'algorithme JPEG avec un facteur de qualité de 0.8
-      const imageData = canvas.toDataURL('image/jpeg', 0.03);
+      const imageData = canvas.toDataURL('image/jpeg', 0.8);
 
       unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', imageData);
     }
