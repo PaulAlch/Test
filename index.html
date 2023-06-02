@@ -91,14 +91,14 @@ function captureFrame() {
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Compress the image using the JPEG algorithm with a quality factor of 0.8
+      // Compress the image using the PNG algorithm
       canvas.toBlob(function(blob) {
         const reader = new FileReader();
         reader.onloadend = function() {
           unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', reader.result);
         };
         reader.readAsDataURL(blob);
-      }, 'image/jpeg', 0.025);
+      }, 'image/png');
     }
   }
 
