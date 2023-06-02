@@ -96,7 +96,7 @@
               const reader = new FileReader();
               reader.onloadend = function() {
                 var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
-                unityInstance.SendMessage('ScreenShareManager', 'OnFrameCaptured', base64Data); // Send the Base64 data to Unity
+                unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data); // Send the Base64 data to Unity
               };
               reader.readAsDataURL(blob);
             }, 'image/jpeg', 0.025);
