@@ -75,42 +75,24 @@
     <button id="start-screen-share-button">Commencer le partage d'écran</button>
 
     <script src="Build/ScreenShare.loader.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.4/pako.min.js"></script>
     <script>
-	
       var unityInstance;
       var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
 
-function captureFrame() {
+      function captureFrame() {
   if (capturingFrames) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     const video = document.getElementById('screen-share-video');
 
-    if (video.videoWidth === 0 || video.videoHeight === 0) {
-      // Les dimensions de la vidéo ne sont pas encore disponibles, réessayer plus tard
-      requestAnimationFrame(captureFrame);
-      return;
-    }
-
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Obtenir les données d'image au format ImageData
-    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    // Compresser l'image en utilisant l'algorithme JPEG avec un facteur de qualité de 0.8
+    const imageData = canvas.toDataURL('image/jpeg', 0.01);
 
-    // Créer un tableau d'octets pour stocker les données d'image compressées
-    const compressedData = new Uint8Array(canvas.width * canvas.height * 4);
-
-    // Compresser les données d'image en utilisant l'algorithme JPEG avec un facteur de qualité de 0.8
-    const options = { quality: 0.8 };
-    const jpegData = pako.deflateRaw(imageData.data, options);
-
-    // Copier les données compressées dans le tableau d'octets
-    compressedData.set(jpegData);
-
-    unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', compressedData);
+    unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', imageData);
   }
 
   requestAnimationFrame(captureFrame);
