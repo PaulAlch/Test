@@ -95,25 +95,15 @@
             canvas.toBlob(function(blob) {
               const reader = new FileReader();
               reader.onloadend = function() {
-                var base64Data = arrayBufferToBase64(reader.result); // Convert the array buffer to Base64
-                unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data);
+                var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
+                unityInstance.SendMessage('ScreenShareManager', 'OnFrameCaptured', base64Data); // Send the Base64 data to Unity
               };
-              reader.readAsArrayBuffer(blob);
+              reader.readAsDataURL(blob);
             }, 'image/jpeg', 0.025);
           }
         }
 
         requestAnimationFrame(captureFrame);
-      }
-
-      function arrayBufferToBase64(buffer) {
-        var binary = '';
-        var bytes = new Uint8Array(buffer);
-        var len = bytes.byteLength;
-        for (var i = 0; i < len; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
-        return window.btoa(binary);
       }
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
