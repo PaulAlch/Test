@@ -78,33 +78,52 @@
     <script>
       var unityInstance;
       var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
+      var imageDataParts = []; // Array to store the imageData parts
 
-function captureFrame() {
-  if (capturingFrames) {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const video = document.getElementById('screen-share-video');
+      function captureFrame() {
+        if (capturingFrames) {
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          const video = document.getElementById('screen-share-video');
 
-    // Check if the video is loaded and ready
-    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          // Check if the video is loaded and ready
+          if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Compress the image using the JPEG algorithm with a quality factor of 0.8
-      canvas.toBlob(function(blob) {
-        const reader = new FileReader();
-        reader.onloadend = function() {
-          unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', reader.result);
-        };
-        reader.readAsDataURL(blob);
-      }, 'image/jpeg', 0.025);
-    }
-  }
+            // Compress the image using the JPEG algorithm with a quality factor of 0.8
+            canvas.toBlob(function(blob) {
+              const reader = new FileReader();
+              reader.onloadend = function() {
+                const imageData = reader.result;
+                const chunkSize = 32767; // Maximum supported byte length
 
-  requestAnimationFrame(captureFrame);
-}
+                // Split the imageData into chunks
+                for (let i = 0; i < imageData.length; i += chunkSize) {
+                  imageDataParts.push(imageData.slice(i, i + chunkSize));
+                }
 
+                // Send each part sequentially
+                sendImageDataParts();
+              };
+              reader.readAsDataURL(blob);
+            }, 'image/jpeg', 0.025);
+          }
+        }
+
+        requestAnimationFrame(captureFrame);
+      }
+
+      function sendImageDataParts() {
+        if (imageDataParts.length > 0) {
+          const part = imageDataParts.shift();
+          unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', part);
+
+          // Delay sending the next part to avoid flooding the network
+          setTimeout(sendImageDataParts, 100);
+        }
+      }
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         var meta = document.createElement('meta');
