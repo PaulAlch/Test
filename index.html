@@ -76,21 +76,28 @@
 
     <script src="Build/ScreenShare.loader.js"></script>
     <script>
-	
-	function captureFrame() {
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
-  const video = document.getElementById('screen-share-video');
+      var unityInstance;
+      var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  context.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const imageData = canvas.toDataURL(); // Convertir l'image en données au format base64
+      function captureFrame() {
+        if (capturingFrames) { // Vérifier si la capture des frames est en cours
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          const video = document.getElementById('screen-share-video');
 
-  // Envoyer les données de l'image via Photon RPC à d'autres utilisateurs connectés
-  unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', imageData);
-}
-	
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = canvas.toDataURL(); // Convertir l'image en données au format base64
+
+          // Envoyer les données de l'image via Photon RPC à d'autres utilisateurs connectés
+          unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', imageData);
+        }
+        
+        // Appeler la fonction captureFrame de manière continue pour capturer toutes les frames du flux vidéo
+        requestAnimationFrame(captureFrame);
+      }
+
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         var meta = document.createElement('meta');
         meta.name = 'viewport';
@@ -122,12 +129,14 @@
       });
 
       function startScreenSharing() {
+        capturingFrames = true; // Début de la capture des frames
         screenShareContainer.style.display = "block";
 
         navigator.mediaDevices.getDisplayMedia({ video: true })
           .then(function(stream) {
             screenShareVideo.srcObject = stream;
             screenShareVideo.play();
+            captureFrame(); // Démarrer la capture des frames une fois que le flux vidéo a commencé
           })
           .catch(function(error) {
             console.error('Erreur lors du partage d\'écran :', error);
@@ -135,12 +144,14 @@
       }
 
       function changeScreenSharing() {
+        capturingFrames = false; // Arrêter la capture des frames
         screenShareVideo.srcObject = null;
 
         navigator.mediaDevices.getDisplayMedia({ video: true })
           .then(function(stream) {
             screenShareVideo.srcObject = stream;
             screenShareVideo.play();
+            capturingFrames = true; // Reprendre la capture des frames avec la nouvelle source d'écran
           })
           .catch(function(error) {
             console.error('Erreur lors du changement de source d\'écran :', error);
@@ -155,6 +166,8 @@
         companyName: "DefaultCompany",
         productName: "Vitrine",
         productVersion: "0.1.0",
+      }).then(function(instance) {
+        unityInstance = instance;
       });
     </script>
   </body>
