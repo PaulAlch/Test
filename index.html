@@ -4,101 +4,87 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Vitrine</title>
-<style>
-  body, html {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-  #container {
-    display: flex;
-    height: 100%;
-    width: 100%;
-  }
-  #webglFrame {
-    flex-grow: 1;
-    background: #231F20;
-    height: 100%;
-  }
-  #screenShareContainer {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #FFFFFF;
-    height: 100%;
-  }
-  #screenShareVideo {
-    max-width: 100%;
-    max-height: 100%;
-  }
-  /* Ajout du style pour les diviseurs */
-  #container > div {
-    width: 50%;
-    height: 100%;
-  }
-</style>
+    <style>
+      body {
+        display: flex;
+        height: 100vh;
+        margin: 0;
+      }
+
+      #left-panel {
+        flex: 1;
+        background-color: #eaeaea;
+        padding: 20px;
+      }
+
+      #right-panel {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #231F20;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+        background: #231F20;
+      }
+    </style>
   </head>
   <body>
-    <div id="container">
-      <div id="screenShareContainer">
-        <video id="screenShareVideo" autoplay></video>
-      </div>
-      <iframe id="webglFrame" src="index.html" frameborder="0"></iframe>
+<div id="left-panel">
+  <h2>Partage d'écran</h2>
+  <button id="start-sharing">Commencer le partage</button>
+  <video id="shared-screen" autoplay></video>
+</div>
+
+<script>
+  const startSharingButton = document.getElementById("start-sharing");
+  const sharedScreenVideo = document.getElementById("shared-screen");
+
+  let mediaStream;
+
+  startSharingButton.addEventListener("click", async () => {
+    try {
+      mediaStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      sharedScreenVideo.srcObject = mediaStream;
+    } catch (error) {
+      console.error("Erreur lors du partage d'écran : ", error);
+    }
+  });
+</script>
+    <div id="right-panel">
+      <canvas id="unity-canvas"></canvas>
     </div>
+    <script src="Build/Multiplayer.loader.js"></script>
     <script>
-      var webglFrame = document.getElementById("webglFrame");
-      var screenShareVideo = document.getElementById("screenShareVideo");
-      // Vérifier si le navigateur prend en charge le partage d'écran
-      if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
-        // Vérifier si l'utilisateur a donné la permission d'accéder à l'écran
-        navigator.permissions.query({ name: 'screen' }).then(function(permissionStatus) {
-          if (permissionStatus.state === 'granted') {
-            startScreenSharing();
-          } else if (permissionStatus.state === 'prompt') {
-            // L'utilisateur n'a pas encore donné sa permission, afficher une demande de permission
-            permissionStatus.onchange = function() {
-              if (permissionStatus.state === 'granted') {
-                startScreenSharing();
-              } else {
-                console.error('L\'utilisateur a refusé la permission pour le partage d\'écran');
-              }
-            };
-          } else {
-            console.error('L\'utilisateur a refusé la permission pour le partage d\'écran');
-          }
-        });
-      } else {
-        console.error('Le navigateur ne prend pas en charge le partage d\'écran');
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+
+        var canvas = document.querySelector("#unity-canvas");
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.position = "fixed";
+
+        document.body.style.textAlign = "left";
       }
-      function startScreenSharing() {
-        // Obtenir l'accès au partage d'écran
-        navigator.mediaDevices.getDisplayMedia({ video: true })
-          .then(function(stream) {
-            // Assigner le flux vidéo au lecteur vidéo
-            screenShareVideo.srcObject = stream;
-            // Play la vidéo
-            screenShareVideo.play();
-          })
-          .catch(function(error) {
-            console.error('Erreur lors du partage d\'écran :', error);
-          });
-      }
-      // Redimensionner les iframes pour occuper la moitié de la page chacun
-      function resizeIframes() {
-        var container = document.getElementById("container");
-        var containerWidth = container.clientWidth;
-        var containerHeight = container.clientHeight;
-        var webglFrameWidth = containerWidth / 2;
-        var screenShareContainerWidth = containerWidth / 2;
-        webglFrame.style.width = webglFrameWidth + "px";
-        webglFrame.style.height = containerHeight + "px";
-        screenShareContainer.style.width = screenShareContainerWidth + "px";
-        screenShareContainer.style.height = containerHeight + "px";
-      }
-      // Appeler la fonction de redimensionnement au chargement de la page et lors du redimensionnement de la fenêtre
-      window.addEventListener("load", resizeIframes);
-      window.addEventListener("resize", resizeIframes);
+
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        dataUrl: "Build/Multiplayer.data",
+        frameworkUrl: "Build/Multiplayer.framework.js",
+        codeUrl: "Build/Multiplayer.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "Vitrine",
+        productVersion: "0.1.0",
+        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
+        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+      });
     </script>
   </body>
 </html>
