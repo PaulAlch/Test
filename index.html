@@ -94,11 +94,11 @@ function captureFrame() {
       // Compress the image using the JPEG algorithm with a quality factor of 0.8
       canvas.toBlob(function(blob) {
         const reader = new FileReader();
-        reader.onloadend = function() {
-		console.log(reader);
-          unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', reader.result);
-        };
-        reader.readAsDataURL(blob);
+reader.onloadend = function() {
+  var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the data URL
+  unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data);
+};
+reader.readAsDataURL(blob);
       }, 'image/jpeg', 0.025);
     }
   }
