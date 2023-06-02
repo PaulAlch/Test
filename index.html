@@ -54,23 +54,23 @@
     <div id="right-panel">
       <canvas id="unity-canvas"></canvas>
     </div>
-    <script src="Build/Multiplayer.loader.js"></script>
+    <script src="Build/ScreenShare.loader.js"></script>
     <script>
 	
-		function captureFrame() 
-		{
-	  const canvas = document.createElement('canvas');
-	  const context = canvas.getContext('2d');
-	  const video = document.getElementById('shared-screen');
+	function captureFrame() {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  const video = document.getElementById('shared-screen');
 
-	  canvas.width = video.videoWidth;
-	  canvas.height = video.videoHeight;
-	  context.drawImage(video, 0, 0, canvas.width, canvas.height);
-	  const imageData = canvas.toDataURL(); // Convertir l'image en données au format base64
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const imageData = canvas.toDataURL(); // Convertir l'image en données au format base64
 
-	  // Envoyer les données de l'image via Photon RPC à d'autres utilisateurs connectés
-	  unityInstance.SendMessage('ScreenShareManager', 'ShareScreen', imageData);
-		}
+  // Envoyer les données de l'image via Photon RPC à d'autres utilisateurs connectés
+  unityInstance.SendMessage('ScreenShareManager', 'ShareScreen', imageData);
+}
+	
 	
       const startSharingButton = document.getElementById("start-sharing");
       const sharedScreenVideo = document.getElementById("shared-screen");
