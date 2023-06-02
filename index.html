@@ -4,35 +4,44 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Vitrine</title>
-    <style>
-      body, html {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      #container {
-        display: flex;
-        height: 100%;
-        width: 100%;
-      }
-      #webglFrame {
-        flex-grow: 1;
-        background: #231F20;
-        height: 100%;
-      }
-      #screenShareContainer {
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #FFFFFF;
-        height: 100%;
-      }
-      #screenShareVideo {
-        max-width: 100%;
-        max-height: 100%;
-      }
-    </style>
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  #container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+  }
+  #webglFrame {
+    flex-grow: 1;
+    background: #231F20;
+    height: 100%;
+  }
+  #screenShareContainer {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFFFFF;
+    height: 100%;
+  }
+  #screenShareVideo {
+    max-width: 100%;
+    max-height: 100%;
+  }
+  /* Ajout du style pour les diviseurs */
+  #left-column {
+    width: 50%;
+    height: 100%;
+  }
+  #right-column {
+    width: 50%;
+    height: 100%;
+  }
+</style>
   </head>
   <body>
     <div id="container">
