@@ -10,6 +10,8 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
+        background-color: black;
+        font-family: Arial, sans-serif;
       }
       #unity-container {
         flex-grow: 1;
@@ -18,12 +20,15 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: flex-start;
       }
       #screen-share-container {
         flex-grow: 1;
         width: 50%;
         height: 100vh;
-        display: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         background-color: #231F20;
       }
       #screen-share-video {
@@ -36,7 +41,7 @@
         bottom: 10px;
         left: 10px;
         padding: 10px;
-        background-color: #FFFFFF;
+        background-color: #ffffff;
         border: none;
         cursor: pointer;
       }
@@ -45,7 +50,7 @@
         bottom: 10px;
         left: 10px;
         padding: 10px;
-        background-color: #FFFFFF;
+        background-color: #ffffff;
         border: none;
         cursor: pointer;
       }
@@ -68,6 +73,7 @@
       <button id="change-screen-button">Changer la source d'écran</button>
     </div>
     <button id="start-screen-share-button">Commencer le partage d'écran</button>
+
     <script src="Build/ScreenShare.loader.js"></script>
     <script>
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -75,11 +81,55 @@
         meta.name = 'viewport';
         meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
         document.getElementsByTagName('head')[0].appendChild(meta);
+
         var canvas = document.querySelector("#unity-canvas");
         canvas.style.width = "100%";
         canvas.style.height = "100%";
         canvas.style.position = "fixed";
+
         document.body.style.textAlign = "left";
+      }
+
+      var unityContainer = document.getElementById("unity-container");
+      var screenShareContainer = document.getElementById("screen-share-container");
+      var screenShareVideo = document.getElementById("screen-share-video");
+      var startScreenShareButton = document.getElementById("start-screen-share-button");
+      var changeScreenButton = document.getElementById("change-screen-button");
+
+      startScreenShareButton.addEventListener("click", function() {
+        startScreenSharing();
+        startScreenShareButton.style.display = "none";
+        changeScreenButton.style.display = "block";
+      });
+
+      changeScreenButton.addEventListener("click", function() {
+        changeScreenSharing();
+      });
+
+      function startScreenSharing() {
+        screenShareContainer.style.display = "block";
+
+        navigator.mediaDevices.getDisplayMedia({ video: true })
+          .then(function(stream) {
+            screenShareVideo.srcObject = stream;
+            screenShareVideo.play();
+          })
+          .catch(function(error) {
+            console.error('Erreur lors du partage d\'écran :', error);
+          });
+      }
+
+      function changeScreenSharing() {
+        screenShareVideo.srcObject = null;
+
+        navigator.mediaDevices.getDisplayMedia({ video: true })
+          .then(function(stream) {
+            screenShareVideo.srcObject = stream;
+            screenShareVideo.play();
+          })
+          .catch(function(error) {
+            console.error('Erreur lors du changement de source d\'écran :', error);
+          });
       }
 
       createUnityInstance(document.querySelector("#unity-canvas"), {
@@ -90,44 +140,7 @@
         companyName: "DefaultCompany",
         productName: "Vitrine",
         productVersion: "0.1.0",
-        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
       });
-      var unityContainer = document.getElementById("unity-container");
-      var screenShareContainer = document.getElementById("screen-share-container");
-      var screenShareVideo = document.getElementById("screen-share-video");
-      var startScreenShareButton = document.getElementById("start-screen-share-button");
-      var changeScreenButton = document.getElementById("change-screen-button");
-      startScreenShareButton.addEventListener("click", function() {
-        startScreenSharing();
-        startScreenShareButton.style.display = "none";
-        changeScreenButton.style.display = "block";
-      });
-      changeScreenButton.addEventListener("click", function() {
-        changeScreenSharing();
-      });
-      function startScreenSharing() {
-        screenShareContainer.style.display = "block";
-        navigator.mediaDevices.getDisplayMedia({ video: true })
-          .then(function(stream) {
-            screenShareVideo.srcObject = stream;
-            screenShareVideo.play();
-          })
-          .catch(function(error) {
-            console.error('Erreur lors du partage d\'écran :', error);
-          });
-      }
-      function changeScreenSharing() {
-        screenShareVideo.srcObject = null;
-        navigator.mediaDevices.getDisplayMedia({ video: true })
-          .then(function(stream) {
-            screenShareVideo.srcObject = stream;
-            screenShareVideo.play();
-          })
-          .catch(function(error) {
-            console.error('Erreur lors du changement de source d\'écran :', error);
-          });
-      }
     </script>
   </body>
 </html>
