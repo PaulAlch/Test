@@ -80,23 +80,23 @@
       var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
 
       function captureFrame() {
-        if (capturingFrames) { // Vérifier si la capture des frames est en cours
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          const video = document.getElementById('screen-share-video');
+  if (capturingFrames) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const video = document.getElementById('screen-share-video');
 
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const imageData = canvas.toDataURL(); // Convertir l'image en données au format base64
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-          // Envoyer les données de l'image via Photon RPC à d'autres utilisateurs connectés
-          unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', imageData);
-        }
-        
-        // Appeler la fonction captureFrame de manière continue pour capturer toutes les frames du flux vidéo
-        requestAnimationFrame(captureFrame);
-      }
+    // Compresser l'image en utilisant l'algorithme JPEG avec un facteur de qualité de 0.8
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+
+    unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', imageData);
+  }
+
+  requestAnimationFrame(captureFrame);
+}
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         var meta = document.createElement('meta');
