@@ -79,7 +79,7 @@
       var unityInstance;
       var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
 
-      function captureFrame() {
+ function captureFrame() {
   if (capturingFrames) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
@@ -89,10 +89,20 @@
     canvas.height = video.videoHeight;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Compresser l'image en utilisant l'algorithme JPEG avec un facteur de qualité de 0.8
-    const imageData = canvas.toDataURL('image/jpeg', 0.01);
+    // Obtenir les données d'image au format ImageData
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-    unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', imageData);
+    // Créer un tableau d'octets pour stocker les données d'image compressées
+    const compressedData = new Uint8Array(canvas.width * canvas.height * 4);
+
+    // Compresser les données d'image en utilisant l'algorithme JPEG avec un facteur de qualité de 0.8
+    const options = { quality: 0.01 };
+    const jpegData = pako.deflateRaw(imageData.data, options);
+
+    // Copier les données compressées dans le tableau d'octets
+    compressedData.set(jpegData);
+
+    unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', compressedData);
   }
 
   requestAnimationFrame(captureFrame);
