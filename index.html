@@ -88,7 +88,7 @@
   const imageData = canvas.toDataURL(); // Convertir l'image en données au format base64
 
   // Envoyer les données de l'image via Photon RPC à d'autres utilisateurs connectés
-  unityInstance.SendMessage('ScreenShareManager', 'ShareScreen', imageData);
+  unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', imageData);
 }
 	
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
