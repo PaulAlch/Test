@@ -74,6 +74,8 @@
     </div>
     <button id="start-screen-share-button">Commencer le partage d'écran</button>
 
+    <script src="Build/ScreenShare.loader.js"></script> <!-- Replace with the actual Unity WebGL library script -->
+
     <script>
       var unityInstance;
       var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
@@ -189,11 +191,11 @@
       }
 
       createUnityInstance(canvas, unityConfig, (progress) => {
-        // Progress callback
-      }).then(function(instance) {
-        unityInstance = instance;
-        resizeCanvas();
-        window.addEventListener("resize", resizeCanvas);
+        if (progress.progress === 1 && progress.module) {
+          unityInstance = progress.instance;
+          window.addEventListener('resize', resizeCanvas);
+          resizeCanvas();
+        }
       });
     </script>
   </body>
