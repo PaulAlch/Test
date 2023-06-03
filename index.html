@@ -65,7 +65,7 @@
   <body>
     <div id="unity-container">
       <div class="window-title">JEU</div>
-      <canvas id="unity-canvas" width="960" height="600"></canvas>
+      <canvas id="unity-canvas"></canvas>
     </div>
     <div id="screen-share-container">
       <div class="window-title">Partage d'écran</div>
@@ -74,7 +74,6 @@
     </div>
     <button id="start-screen-share-button">Commencer le partage d'écran</button>
 
-    <script src="Build/ScreenShare.loader.js"></script>
     <script>
       var unityInstance;
       var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
@@ -166,7 +165,9 @@
           });
       }
 
-      createUnityInstance(document.querySelector("#unity-canvas"), {
+      var canvas = document.getElementById("unity-canvas");
+
+      var unityConfig = {
         dataUrl: "Build/ScreenShare.data",
         frameworkUrl: "Build/ScreenShare.framework.js",
         codeUrl: "Build/ScreenShare.wasm",
@@ -174,8 +175,25 @@
         companyName: "DefaultCompany",
         productName: "Vitrine",
         productVersion: "0.1.0",
+        devicePixelRatio: 1,
+        width: canvas.clientWidth,
+        height: canvas.clientHeight,
+      };
+
+      function resizeCanvas() {
+        var canvas = document.getElementById("unity-canvas");
+        unityConfig.width = canvas.clientWidth;
+        unityConfig.height = canvas.clientHeight;
+        unityInstance.Module.canvas.width = unityConfig.width;
+        unityInstance.Module.canvas.height = unityConfig.height;
+      }
+
+      createUnityInstance(canvas, unityConfig, (progress) => {
+        // Progress callback
       }).then(function(instance) {
         unityInstance = instance;
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
       });
     </script>
   </body>
