@@ -76,35 +76,56 @@
 
     <script src="Build/ScreenShare.loader.js"></script>
     <script>
-      var unityInstance;
-      var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
+var unityInstance;
+var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
 
-      function captureFrame() {
-        if (capturingFrames) {
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          const video = document.getElementById('screen-share-video');
+// Fonction pour découper la chaîne Base64 en morceaux plus petits
+function splitBase64Data(base64Data, chunkSize) {
+  var chunks = [];
+  for (var i = 0, len = base64Data.length; i < len; i += chunkSize) {
+    chunks.push(base64Data.substring(i, i + chunkSize));
+  }
+  return chunks;
+}
 
-          // Check if the video is loaded and ready
-          if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+// Fonction pour envoyer les morceaux de données à Unity
+function sendBase64Chunks(chunks) {
+  for (var i = 0; i < chunks.length; i++) {
+    unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataChunkToOtherPlayer', chunks[i]);
+  }
+}
 
-            // Compress the image using the JPEG algorithm with a quality factor of 0.8
-            canvas.toBlob(function(blob) {
-              const reader = new FileReader();
-              reader.onloadend = function() {
-                var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
-                unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data); // Send the Base64 data to Unity
-              };
-              reader.readAsDataURL(blob);
-            }, 'image/jpeg', 0.8);
-          }
-        }
+function captureFrame() {
+  if (capturingFrames) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const video = document.getElementById('screen-share-video');
 
-        requestAnimationFrame(captureFrame);
-      }
+    // Check if the video is loaded and ready
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Compress the image using the JPEG algorithm with a quality factor of 0.8
+      canvas.toBlob(function(blob) {
+        const reader = new FileReader();
+        reader.onloadend = function() {
+          var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
+
+          // Split the Base64 data into smaller chunks
+          var base64Chunks = splitBase64Data(base64Data, 30000);
+
+          // Send the Base64 data chunks to Unity
+          sendBase64Chunks(base64Chunks);
+        };
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', 0.8);
+    }
+  }
+
+  requestAnimationFrame(captureFrame);
+}
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         var meta = document.createElement('meta');
