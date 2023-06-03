@@ -91,7 +91,7 @@ function splitBase64Data(base64Data, chunkSize) {
 // Fonction pour envoyer les morceaux de données à Unity
 function sendBase64Chunks(chunks) {
   for (var i = 0; i < chunks.length; i++) {
-    unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataChunkToOtherPlayer', chunks[i]);
+    unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', chunks[i]);
   }
 }
 
