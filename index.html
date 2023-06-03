@@ -74,6 +74,7 @@
     </div>
     <button id="start-screen-share-button">Commencer le partage d'écran</button>
 
+    <script src="Build/ScreenShare.loader.js"></script>
     <script>
       var unityInstance;
       var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
@@ -139,7 +140,7 @@
         capturingFrames = true; // Début de la capture des frames
         screenShareContainer.style.display = "block";
 
-        navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: 30, max: 60 } } })
+        navigator.mediaDevices.getDisplayMedia({ video: true })
           .then(function(stream) {
             screenShareVideo.srcObject = stream;
             screenShareVideo.play();
@@ -154,7 +155,7 @@
         capturingFrames = false; // Arrêter la capture des frames
         screenShareVideo.srcObject = null;
 
-        navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: 30, max: 60 } } })
+        navigator.mediaDevices.getDisplayMedia({ video: true })
           .then(function(stream) {
             screenShareVideo.srcObject = stream;
             screenShareVideo.play();
@@ -173,9 +174,6 @@
         companyName: "DefaultCompany",
         productName: "Vitrine",
         productVersion: "0.1.0",
-        webglContextAttributes: {
-          preserveDrawingBuffer: true
-        }
       }).then(function(instance) {
         unityInstance = instance;
       });
