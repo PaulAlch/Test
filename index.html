@@ -61,8 +61,9 @@
         const context = canvas.getContext('2d');
         const video = document.getElementById('shared-screen');
 
-        canvas.width = Math.min(video.videoWidth, unityInstance.Module.canvas.width);
-        canvas.height = Math.min(video.videoHeight, unityInstance.Module.canvas.height);
+        const unityCanvas = unityInstance.Module.canvas;
+        canvas.width = Math.min(video.videoWidth, unityCanvas.width);
+        canvas.height = Math.min(video.videoHeight, unityCanvas.height);
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imageData = canvas.toDataURL(); // Convertir l'image en données au format base64
 
@@ -100,7 +101,7 @@
         document.body.style.textAlign = 'left';
       }
 
-      createUnityInstance(document.querySelector('#unity-canvas'), {
+      const unityConfig = {
         dataUrl: 'Build/ScreenShare.data',
         frameworkUrl: 'Build/ScreenShare.framework.js',
         codeUrl: 'Build/ScreenShare.wasm',
@@ -108,9 +109,17 @@
         companyName: 'DefaultCompany',
         productName: 'Vitrine',
         productVersion: '0.1.0',
-      }).then(function (instance) {
-        unityInstance = instance;
-      });
+        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
+        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+      };
+
+      createUnityInstance(document.querySelector('#unity-canvas'), unityConfig)
+        .then(function (instance) {
+          unityInstance = instance;
+        })
+        .catch(function (error) {
+          console.error('Error creating Unity instance: ', error);
+        });
     </script>
   </body>
 </html>
