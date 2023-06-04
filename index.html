@@ -74,7 +74,7 @@
     </div>
     <button id="start-screen-share-button">Commencer le partage d'écran</button>
 
-    <script src="Build/ScreenShare.loader.js"></script>
+    <script src="Build/ShareScreen.loader.js"></script>
     <script>
       var unityInstance;
       var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
@@ -167,9 +167,9 @@
       }
 
       createUnityInstance(document.querySelector("#unity-canvas"), {
-        dataUrl: "Build/ScreenShare.data",
-        frameworkUrl: "Build/ScreenShare.framework.js",
-        codeUrl: "Build/ScreenShare.wasm",
+        dataUrl: "Build/ShareScreen.data",
+        frameworkUrl: "Build/ShareScreen.framework.js",
+        codeUrl: "Build/ShareScreen.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "Vitrine",
