@@ -94,7 +94,7 @@ function captureFrame() {
 
       // Check if the video is loaded and ready
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        const targetWidth = 1920; // Set a desired target width for the canvas
+        const targetWidth = 480; // Set a desired target width for the canvas
         const targetHeight = (video.videoHeight / video.videoWidth) * targetWidth; // Calculate the corresponding height based on the video's aspect ratio
 
         canvas.width = targetWidth;
@@ -110,7 +110,7 @@ function captureFrame() {
             console.log("Quality upscale");
           };
           reader.readAsDataURL(blob);
-        }, 'image/jpeg', 2); // Adjust the quality factor as needed (0.6 for example)
+        }, 'image/jpeg', 0.6); // Adjust the quality factor as needed (0.6 for example)
       }
     }
   }
