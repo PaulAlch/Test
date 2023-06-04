@@ -98,7 +98,7 @@ function captureFrame() {
           var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
 
           // Send the Base64 data to Unity
-          unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data, video.videoWidth, video.videoHeight);
+          unityInstance.SendMessage('ScreenShareManager', 'CallFunctionSendData', base64Data, video.videoWidth, video.videoHeight);
         };
         reader.readAsDataURL(blob);
       }, 'image/jpeg', 0.8);
