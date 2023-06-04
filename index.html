@@ -97,9 +97,10 @@
               reader.onloadend = function() {
                 var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
                 unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data); // Send the Base64 data to Unity
+				console.log("Quality upscale")
               };
               reader.readAsDataURL(blob);
-            }, 'image/jpeg', 0.8);
+            }, 'image/jpeg', 3);
           }
         }
 
