@@ -79,6 +79,9 @@
 var unityInstance;
 var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
 
+
+var chunkSize = 30000; // Définir la valeur de chunkSize selon vos besoins
+
 // Fonction pour découper la chaîne Base64 en morceaux plus petits
 function splitBase64Data(base64Data, chunkSize) {
   var chunks = [];
