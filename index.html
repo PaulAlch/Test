@@ -79,25 +79,6 @@
 var unityInstance;
 var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
 
-
-var chunkSize = 30000; // Définir la valeur de chunkSize selon vos besoins
-
-// Fonction pour découper la chaîne Base64 en morceaux plus petits
-function splitBase64Data(base64Data, chunkSize) {
-  var chunks = [];
-  for (var i = 0, len = base64Data.length; i < len; i += chunkSize) {
-    chunks.push(base64Data.substring(i, i + chunkSize));
-  }
-  return chunks;
-}
-
-// Fonction pour envoyer les morceaux de données à Unity
-function sendBase64Chunks(chunks) {
-  for (var i = 0; i < chunks.length; i++) {
-    unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', chunks[i]);
-  }
-}
-
 function captureFrame() {
   if (capturingFrames) {
     const canvas = document.createElement('canvas');
@@ -116,91 +97,88 @@ function captureFrame() {
         reader.onloadend = function() {
           var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
 
-          // Split the Base64 data into smaller chunks
-          var base64Chunks = splitBase64Data(base64Data, 30000);
-
-          // Send the Base64 data chunks to Unity
-          sendBase64Chunks(base64Chunks);
+          // Send the Base64 data to Unity
+          unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data);
         };
         reader.readAsDataURL(blob);
-      }, 'image/jpeg', 0.2);
+      }, 'image/jpeg', 0.8);
     }
   }
 
   requestAnimationFrame(captureFrame);
 }
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
+if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+  var meta = document.createElement('meta');
+  meta.name = 'viewport';
+  meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+  document.getElementsByTagName('head')[0].appendChild(meta);
 
-        var canvas = document.querySelector("#unity-canvas");
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.style.position = "fixed";
+  var canvas = document.querySelector("#unity-canvas");
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+  canvas.style.position = "fixed";
 
-        document.body.style.textAlign = "left";
-      }
+  document.body.style.textAlign = "left";
+}
 
-      var unityContainer = document.getElementById("unity-container");
-      var screenShareContainer = document.getElementById("screen-share-container");
-      var screenShareVideo = document.getElementById("screen-share-video");
-      var startScreenShareButton = document.getElementById("start-screen-share-button");
-      var changeScreenButton = document.getElementById("change-screen-button");
+var unityContainer = document.getElementById("unity-container");
+var screenShareContainer = document.getElementById("screen-share-container");
+var screenShareVideo = document.getElementById("screen-share-video");
+var startScreenShareButton = document.getElementById("start-screen-share-button");
+var changeScreenButton = document.getElementById("change-screen-button");
 
-      startScreenShareButton.addEventListener("click", function() {
-        startScreenSharing();
-        startScreenShareButton.style.display = "none";
-        changeScreenButton.style.display = "block";
-      });
+startScreenShareButton.addEventListener("click", function() {
+  startScreenSharing();
+  startScreenShareButton.style.display = "none";
+  changeScreenButton.style.display = "block";
+});
 
-      changeScreenButton.addEventListener("click", function() {
-        changeScreenSharing();
-      });
+changeScreenButton.addEventListener("click", function() {
+  changeScreenSharing();
+});
 
-      function startScreenSharing() {
-        capturingFrames = true; // Début de la capture des frames
-        screenShareContainer.style.display = "block";
+function startScreenSharing() {
+  capturingFrames = true; // Début de la capture des frames
+  screenShareContainer.style.display = "block";
 
-        navigator.mediaDevices.getDisplayMedia({ video: true })
-          .then(function(stream) {
-            screenShareVideo.srcObject = stream;
-            screenShareVideo.play();
-            captureFrame(); // Démarrer la capture des frames une fois que le flux vidéo a commencé
-          })
-          .catch(function(error) {
-            console.error('Erreur lors du partage d\'écran :', error);
-          });
-      }
+  navigator.mediaDevices.getDisplayMedia({ video: true })
+    .then(function(stream) {
+      screenShareVideo.srcObject = stream;
+      screenShareVideo.play();
+      captureFrame(); // Démarrer la capture des frames une fois que le flux vidéo a commencé
+    })
+    .catch(function(error) {
+      console.error('Erreur lors du partage d\'écran :', error);
+    });
+}
 
-      function changeScreenSharing() {
-        capturingFrames = false; // Arrêter la capture des frames
-        screenShareVideo.srcObject = null;
+function changeScreenSharing() {
+  capturingFrames = false; // Arrêter la capture des frames
+  screenShareVideo.srcObject = null;
 
-        navigator.mediaDevices.getDisplayMedia({ video: true })
-          .then(function(stream) {
-            screenShareVideo.srcObject = stream;
-            screenShareVideo.play();
-            capturingFrames = true; // Reprendre la capture des frames avec la nouvelle source d'écran
-          })
-          .catch(function(error) {
-            console.error('Erreur lors du changement de source d\'écran :', error);
-          });
-      }
+  navigator.mediaDevices.getDisplayMedia({ video: true })
+    .then(function(stream) {
+      screenShareVideo.srcObject = stream;
+      screenShareVideo.play();
+      capturingFrames = true; // Reprendre la capture des frames avec la nouvelle source d'écran
+    })
+    .catch(function(error) {
+      console.error('Erreur lors du changement de source d\'écran :', error);
+    });
+}
 
-      createUnityInstance(document.querySelector("#unity-canvas"), {
-        dataUrl: "Build/ShareScreen.data",
-        frameworkUrl: "Build/ShareScreen.framework.js",
-        codeUrl: "Build/ShareScreen.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "Vitrine",
-        productVersion: "0.1.0",
-      }).then(function(instance) {
-        unityInstance = instance;
-      });
-    </script>
-  </body>
+createUnityInstance(document.querySelector("#unity-canvas"), {
+  dataUrl: "Build/ShareScreen.data",
+  frameworkUrl: "Build/ShareScreen.framework.js",
+  codeUrl: "Build/ShareScreen.wasm",
+  streamingAssetsUrl: "StreamingAssets",
+  companyName: "DefaultCompany",
+  productName: "Vitrine",
+  productVersion: "0.1.0",
+}).then(function(instance) {
+  unityInstance = instance;
+});
+</script>
+</body>
 </html>
