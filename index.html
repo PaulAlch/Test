@@ -94,26 +94,30 @@ function captureFrame() {
 
       // Check if the video is loaded and ready
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        const targetWidth = 480; // Set a desired target width for the canvas
+        const targetHeight = (video.videoHeight / video.videoWidth) * targetWidth; // Calculate the corresponding height based on the video's aspect ratio
+
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Compress the image using the JPEG algorithm with a quality factor of 0.8
+        // Compress the image using the JPEG algorithm with a lower quality factor
         canvas.toBlob(function(blob) {
           const reader = new FileReader();
           reader.onloadend = function() {
             var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
             unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data); // Send the Base64 data to Unity
-            console.log("Quality upscale")
+            console.log("Quality upscale");
           };
           reader.readAsDataURL(blob);
-        }, 'image/jpeg', 3);
+        }, 'image/jpeg', 0.6); // Adjust the quality factor as needed (0.6 for example)
       }
     }
   }
 
   requestAnimationFrame(captureFrame);
 }
+
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         var meta = document.createElement('meta');
