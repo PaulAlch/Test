@@ -96,7 +96,7 @@
             canvas.toBlob(function(blob) {
               const reader = new FileReader();
               reader.onloadend = function() {
-			  if(unityInstance){
+			  if(unityInstance && unityInstance.Module){
                 var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
                 unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data); // Send the Base64 data to Unity
 				}
