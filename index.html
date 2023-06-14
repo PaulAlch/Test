@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | Vitrine</title>
+    <title>Persist Data</title>
     <style>
       body {
         display: flex;
@@ -65,7 +65,7 @@
   <body>
     <div id="unity-container">
       <div class="window-title">JEU</div>
-      <canvas id="unity-canvas" width="960" height="600"></canvas>
+      <canvas id="unity-canvas"></canvas>
     </div>
     <div id="screen-share-container">
       <div class="window-title">Partage d'écran</div>
@@ -74,50 +74,38 @@
     </div>
     <button id="start-screen-share-button">Commencer le partage d'écran</button>
 
-    <script src="Build/ShareScreen.loader.js"></script>
+    <script src="Build/BuildWebGLTechno.loader.js"></script> <!-- Replace with the actual Unity WebGL library script -->
+
     <script>
       var unityInstance;
       var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
 
-var captureInterval = 33; // Interval de capture en millisecondes
-var lastCaptureTime = 0; // Temps du dernier envoi de capture
+      function captureFrame() {
+        if (capturingFrames) {
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          const video = document.getElementById('screen-share-video');
 
-function captureFrame() {
-  if (capturingFrames) {
-    const currentTime = Date.now();
-    if (currentTime - lastCaptureTime >= captureInterval) {
-      lastCaptureTime = currentTime;
+          // Check if the video is loaded and ready
+          if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      const video = document.getElementById('screen-share-video');
+            // Compress the image using the JPEG algorithm with a quality factor of 0.8
+            canvas.toBlob(function(blob) {
+              const reader = new FileReader();
+              reader.onloadend = function() {
+                var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
+                unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data); // Send the Base64 data to Unity
+              };
+              reader.readAsDataURL(blob);
+            }, 'image/jpeg', 0.8);
+          }
+        }
 
-      // Check if the video is loaded and ready
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        const targetWidth = 480; // Set a desired target width for the canvas
-        const targetHeight = (video.videoHeight / video.videoWidth) * targetWidth; // Calculate the corresponding height based on the video's aspect ratio
-
-        canvas.width = targetWidth;
-        canvas.height = targetHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Compress the image using the JPEG algorithm with a lower quality factor
-        canvas.toBlob(function(blob) {
-          const reader = new FileReader();
-          reader.onloadend = function() {
-            var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
-            unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data); // Send the Base64 data to Unity
-            console.log("Quality upscale");
-          };
-          reader.readAsDataURL(blob);
-        }, 'image/jpeg', 0.6); // Adjust the quality factor as needed (0.6 for example)
+        requestAnimationFrame(captureFrame);
       }
-    }
-  }
-
-  requestAnimationFrame(captureFrame);
-}
-
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         var meta = document.createElement('meta');
@@ -179,16 +167,35 @@ function captureFrame() {
           });
       }
 
-      createUnityInstance(document.querySelector("#unity-canvas"), {
-        dataUrl: "Build/ShareScreen.data",
-        frameworkUrl: "Build/ShareScreen.framework.js",
-        codeUrl: "Build/ShareScreen.wasm",
+      var canvas = document.getElementById("unity-canvas");
+
+      var unityConfig = {
+        dataUrl: "Build/BuildWebGLTechno.data",
+        frameworkUrl: "Build/BuildWebGLTechno.framework.js",
+        codeUrl: "Build/BuildWebGLTechno.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "Vitrine",
         productVersion: "0.1.0",
-      }).then(function(instance) {
-        unityInstance = instance;
+        devicePixelRatio: 1,
+        width: canvas.clientWidth,
+        height: canvas.clientHeight,
+      };
+
+      function resizeCanvas() {
+        var canvas = document.getElementById("unity-canvas");
+        unityConfig.width = canvas.clientWidth;
+        unityConfig.height = canvas.clientHeight;
+        unityInstance.Module.canvas.width = unityConfig.width;
+        unityInstance.Module.canvas.height = unityConfig.height;
+      }
+
+      createUnityInstance(canvas, unityConfig, (progress) => {
+        if (progress.progress === 1 && progress.module) {
+          unityInstance = progress.instance;
+          window.addEventListener('resize', resizeCanvas);
+          resizeCanvas();
+        }
       });
     </script>
   </body>
