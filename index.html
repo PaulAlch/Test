@@ -79,34 +79,45 @@
     <script>
       var unityInstance;
       var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
+	  
+	  var captureInterval = 33; // Interval de capture en millisecondes
+	  var lastCaptureTime = 0; // Temps du dernier envoi de capture
+
 
       function captureFrame() {
-        if (capturingFrames) {
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          const video = document.getElementById('screen-share-video');
+  if (capturingFrames) {
+    const currentTime = Date.now();
+    if (currentTime - lastCaptureTime >= captureInterval) {
+      lastCaptureTime = currentTime;
 
-          // Check if the video is loaded and ready
-          if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      const video = document.getElementById('screen-share-video');
 
-            // Compress the image using the JPEG algorithm with a quality factor of 0.8
-            canvas.toBlob(function(blob) {
-              const reader = new FileReader();
-              reader.onloadend = function() {
-			  if(unityInstance && unityInstance.Module){
-                var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
-                unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data); // Send the Base64 data to Unity
-				}
-              };
-              reader.readAsDataURL(blob);
-            }, 'image/jpeg', 0.8);
-          }
-        }
+      // Check if the video is loaded and ready
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        const targetWidth = 480; // Set a desired target width for the canvas
+        const targetHeight = (video.videoHeight / video.videoWidth) * targetWidth; // Calculate the corresponding height based on the video's aspect ratio
 
-        requestAnimationFrame(captureFrame);
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Compress the image using the JPEG algorithm with a lower quality factor
+        canvas.toBlob(function(blob) {
+          const reader = new FileReader();
+          reader.onloadend = function() {
+            var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
+            unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data); // Send the Base64 data to Unity
+            console.log("Quality upscale");
+          };
+          reader.readAsDataURL(blob);
+        }, 'image/jpeg', 0.6); // Adjust the quality factor as needed (0.6 for example)
+      }
+    }
+  }
+
+  requestAnimationFrame(captureFrame);
       }
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
