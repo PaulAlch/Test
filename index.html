@@ -166,9 +166,10 @@
             console.error('Erreur lors du changement de source d\'écran :', error);
           });
       }
+ var unityCanvas; // Define unityCanvas variable in the global scope
 
-function resizeCanvas() {
-    var unityCanvas = document.getElementById("unity-canvas");
+  function resizeCanvas() {
+    unityCanvas = document.getElementById("unity-canvas"); // Assign value to unityCanvas variable
     var unityContainer = document.getElementById("unity-container");
     unityCanvas.width = unityContainer.clientWidth;
     unityCanvas.height = unityContainer.clientHeight;
@@ -177,7 +178,6 @@ function resizeCanvas() {
       unityInstance.Module.canvas.height = unityCanvas.height;
     }
   }
-
       window.addEventListener('resize', resizeCanvas);
       resizeCanvas();
 
