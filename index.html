@@ -167,7 +167,19 @@
           });
       }
 
-      var canvas = document.getElementById("unity-canvas");
+      function resizeCanvas() {
+        var unityCanvas = document.getElementById("unity-canvas");
+        var unityContainer = document.getElementById("unity-container");
+        unityCanvas.width = unityContainer.clientWidth;
+        unityCanvas.height = unityContainer.clientHeight;
+        if (unityInstance && unityInstance.Module) {
+          unityInstance.Module.canvas.width = unityCanvas.width;
+          unityInstance.Module.canvas.height = unityCanvas.height;
+        }
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
 
       var unityConfig = {
         dataUrl: "Build/BuildWebGLTechno.data",
@@ -178,23 +190,13 @@
         productName: "Vitrine",
         productVersion: "0.1.0",
         devicePixelRatio: 1,
-        width: canvas.clientWidth,
-        height: canvas.clientHeight,
+        width: unityCanvas.width,
+        height: unityCanvas.height,
       };
 
-      function resizeCanvas() {
-        var canvas = document.getElementById("unity-canvas");
-        unityConfig.width = canvas.clientWidth;
-        unityConfig.height = canvas.clientHeight;
-        unityInstance.Module.canvas.width = unityConfig.width;
-        unityInstance.Module.canvas.height = unityConfig.height;
-      }
-
-      createUnityInstance(canvas, unityConfig, (progress) => {
+      createUnityInstance(unityCanvas, unityConfig, (progress) => {
         if (progress.progress === 1 && progress.module) {
           unityInstance = progress.instance;
-          window.addEventListener('resize', resizeCanvas);
-          resizeCanvas();
         }
       });
     </script>
