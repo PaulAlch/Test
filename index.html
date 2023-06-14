@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en-us">
 <head>
-  <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity WebGL Player | Vitrine</title>
-    <title>Persist Data</title>
     <style>
         body {
             display: flex;
@@ -62,82 +60,27 @@
             margin-top: 20px;
             color: white;
         }
-      body {
-        display: flex;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background-color: black;
-        font-family: Arial, sans-serif;
-      }
-      #unity-container {
-        flex-grow: 1;
-        width: 50%;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-      }
-      #screen-share-container {
-        flex-grow: 1;
-        width: 50%;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background-color: #231F20;
-      }
-      #screen-share-video {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-      }
-      #start-screen-share-button {
-        position: fixed;
-        bottom: 10px;
-        left: 10px;
-        padding: 10px;
-        background-color: #ffffff;
-        border: none;
-        cursor: pointer;
-      }
-      #change-screen-button {
-        position: fixed;
-        bottom: 10px;
-        left: 10px;
-        padding: 10px;
-        background-color: #ffffff;
-        border: none;
-        cursor: pointer;
-      }
-      .window-title {
-        font-size: 24px;
-        font-weight: bold;
-        margin-top: 20px;
-        color: white;
-      }
     </style>
-  </head>
-  <body>
-    <div id="unity-container">
-      <div class="window-title">JEU</div>
-      <canvas id="unity-canvas"></canvas>
-    </div>
-    <div id="screen-share-container">
-      <div class="window-title">Partage d'écran</div>
-      <video id="screen-share-video"></video>
-      <button id="change-screen-button">Changer la source d'écran</button>
-    </div>
-    <button id="start-screen-share-button">Commencer le partage d'écran</button>
+</head>
+<body>
+<div id="unity-container">
+    <div class="window-title">JEU</div>
+    <canvas id="unity-canvas"></canvas>
+</div>
+<div id="screen-share-container">
+    <div class="window-title">Partage d'écran</div>
+    <video id="screen-share-video"></video>
+    <button id="change-screen-button">Changer la source d'écran</button>
+</div>
+<button id="start-screen-share-button">Commencer le partage d'écran</button>
 
-    <script src="Build/BuildWebGLTechno.loader.js"></script> <!-- Replace with the actual Unity WebGL library script -->
+<script src="Build/BuildWebGLTechno.loader.js"></script>
 
-    <script>
-      var unityInstance;
-      var capturingFrames = false; // Variable pour indiquer si la capture des frames est en cours
+<script>
+    var unityInstance;
+    var capturingFrames = false;
 
-      function captureFrame() {
+    function captureFrame() {
         if (capturingFrames) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
@@ -157,81 +100,38 @@
                         unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data); // Send the Base64 data to Unity
                     };
                     reader.readAsDataURL(blob);
-                }, 'image/jpeg', 0.025);
+                }, 'image/jpeg', 0.8);
             }
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          const video = document.getElementById('screen-share-video');
-
-          // Check if the video is loaded and ready
-          if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            // Compress the image using the JPEG algorithm with a quality factor of 0.8
-            canvas.toBlob(function(blob) {
-              const reader = new FileReader();
-              reader.onloadend = function() {
-                var base64Data = reader.result.split(',')[1]; // Extract the Base64 data from the Data URL
-                unityInstance.SendMessage('ScreenShareManager', 'SendScreenDataToOtherPlayer', base64Data); // Send the Base64 data to Unity
-              };
-              reader.readAsDataURL(blob);
-            }, 'image/jpeg', 0.8);
-          }
         }
 
         requestAnimationFrame(captureFrame);
     }
-      }
-
-    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-@ -118,65 +119,84 @@
-        canvas.style.position = "fixed";
-
-        document.body.style.textAlign = "left";
-    }
-      }
 
     var unityContainer = document.getElementById("unity-container");
     var screenShareContainer = document.getElementById("screen-share-container");
     var screenShareVideo = document.getElementById("screen-share-video");
     var startScreenShareButton = document.getElementById("start-screen-share-button");
     var changeScreenButton = document.getElementById("change-screen-button");
-      var unityContainer = document.getElementById("unity-container");
-      var screenShareContainer = document.getElementById("screen-share-container");
-      var screenShareVideo = document.getElementById("screen-share-video");
-      var startScreenShareButton = document.getElementById("start-screen-share-button");
-      var changeScreenButton = document.getElementById("change-screen-button");
 
     startScreenShareButton.addEventListener("click", function() {
-      startScreenShareButton.addEventListener("click", function() {
         startScreenSharing();
         startScreenShareButton.style.display = "none";
         changeScreenButton.style.display = "block";
     });
-      });
 
     changeScreenButton.addEventListener("click", function() {
-      changeScreenButton.addEventListener("click", function() {
         changeScreenSharing();
     });
-      });
 
     function startScreenSharing() {
-      function startScreenSharing() {
-        capturingFrames = true; // Début de la capture des frames
+        capturingFrames = true;
         screenShareContainer.style.display = "block";
 
         navigator.mediaDevices.getDisplayMedia({ video: true })
             .then(function(stream) {
                 screenShareVideo.srcObject = stream;
                 screenShareVideo.play();
-                captureFrame(); // Démarrer la capture des frames une fois que le flux vidéo a commencé
+                captureFrame();
             })
             .catch(function(error) {
                 console.error('Erreur lors du partage d\'écran :', error);
@@ -239,48 +139,23 @@
     }
 
     function changeScreenSharing() {
-          .then(function(stream) {
-            screenShareVideo.srcObject = stream;
-            screenShareVideo.play();
-            captureFrame(); // Démarrer la capture des frames une fois que le flux vidéo a commencé
-          })
-          .catch(function(error) {
-            console.error('Erreur lors du partage d\'écran :', error);
-          });
-      }
-
-      function changeScreenSharing() {
-        capturingFrames = false; // Arrêter la capture des frames
+        capturingFrames = false;
         screenShareVideo.srcObject = null;
 
         navigator.mediaDevices.getDisplayMedia({ video: true })
             .then(function(stream) {
                 screenShareVideo.srcObject = stream;
                 screenShareVideo.play();
-                capturingFrames = true; // Reprendre la capture des frames avec la nouvelle source d'écran
+                capturingFrames = true;
             })
             .catch(function(error) {
                 console.error('Erreur lors du changement de source d\'écran :', error);
             });
     }
 
-    createUnityInstance(document.querySelector("#unity-canvas"), {
-        dataUrl: "Build/ScreenShare.data",
-        frameworkUrl: "Build/ScreenShare.framework.js",
-        codeUrl: "Build/ScreenShare.wasm",
-          .then(function(stream) {
-            screenShareVideo.srcObject = stream;
-            screenShareVideo.play();
-            capturingFrames = true; // Reprendre la capture des frames avec la nouvelle source d'écran
-          })
-          .catch(function(error) {
-            console.error('Erreur lors du changement de source d\'écran :', error);
-          });
-      }
+    var canvas = document.getElementById("unity-canvas");
 
-      var canvas = document.getElementById("unity-canvas");
-
-      var unityConfig = {
+    var unityConfig = {
         dataUrl: "Build/BuildWebGLTechno.data",
         frameworkUrl: "Build/BuildWebGLTechno.framework.js",
         codeUrl: "Build/BuildWebGLTechno.wasm",
@@ -288,32 +163,26 @@
         companyName: "DefaultCompany",
         productName: "Vitrine",
         productVersion: "0.1.0",
-    }).then(function(instance) {
-        unityInstance = instance;
-    });
-</script>
-</body>
-</html>
         devicePixelRatio: 1,
         width: canvas.clientWidth,
         height: canvas.clientHeight,
-      };
+    };
 
-      function resizeCanvas() {
+    function resizeCanvas() {
         var canvas = document.getElementById("unity-canvas");
         unityConfig.width = canvas.clientWidth;
         unityConfig.height = canvas.clientHeight;
         unityInstance.Module.canvas.width = unityConfig.width;
         unityInstance.Module.canvas.height = unityConfig.height;
-      }
+    }
 
-      createUnityInstance(canvas, unityConfig, (progress) => {
+    createUnityInstance(canvas, unityConfig, (progress) => {
         if (progress.progress === 1 && progress.module) {
-          unityInstance = progress.instance;
-          window.addEventListener('resize', resizeCanvas);
-          resizeCanvas();
+            unityInstance = progress.instance;
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
         }
-      });
-    </script>
-  </body>
+    });
+</script>
+</body>
 </html>
