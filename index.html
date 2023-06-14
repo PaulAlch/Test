@@ -167,16 +167,16 @@
           });
       }
 
-      function resizeCanvas() {
-        var unityCanvas = document.querySelector("#unity-container canvas");
-        var unityContainer = document.getElementById("unity-container");
-        unityCanvas.width = unityContainer.clientWidth;
-        unityCanvas.height = unityContainer.clientHeight;
-        if (unityInstance && unityInstance.Module) {
-          unityInstance.Module.canvas.width = unityCanvas.width;
-          unityInstance.Module.canvas.height = unityCanvas.height;
-        }
-      }
+function resizeCanvas() {
+    var unityCanvas = document.getElementById("unity-canvas");
+    var unityContainer = document.getElementById("unity-container");
+    unityCanvas.width = unityContainer.clientWidth;
+    unityCanvas.height = unityContainer.clientHeight;
+    if (unityInstance && unityInstance.Module) {
+      unityInstance.Module.canvas.width = unityCanvas.width;
+      unityInstance.Module.canvas.height = unityCanvas.height;
+    }
+  }
 
       window.addEventListener('resize', resizeCanvas);
       resizeCanvas();
