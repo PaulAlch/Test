@@ -168,7 +168,7 @@
       }
 
       function resizeCanvas() {
-        var unityCanvas = document.getElementById("unity-canvas");
+        var unityCanvas = document.querySelector("#unity-container canvas");
         var unityContainer = document.getElementById("unity-container");
         unityCanvas.width = unityContainer.clientWidth;
         unityCanvas.height = unityContainer.clientHeight;
